@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yard Duty Assigner</title>
+    <!-- Tailwind CSS -->
+    <link href="../output.css" rel="stylesheet">
+    <style>
+        .draggable {
+            cursor: grab;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Sidebar -->
+  <div class="bg-[#2A8C55] h-screen w-1/5 p-4 text-white">
+    <h1 class="text-2xl font-bold mb-8">Menu</h1>
+    <ul>
+      <li class="mb-4">
+        <a href="#" class="block py-2 px-4 bg-green-700 rounded hover:bg-green-600">Timetable</a>
+      </li>
+      <li>
+        <a href="teachers.html" class="block py-2 px-4 bg-green-700 rounded hover:bg-green-600">Teachers</a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Content Section -->
+  <div class="w-4/5 p-6">
+
+    <!-- Add Row Button -->
+    <div class="flex justify-end mb-4">
+      <button id="add-row-btn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+        Add New Row
+      </button>
+      <button id="convert-button" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">Randomly Assign</button>
+
+    </div>
+    
+
+    <!-- Timetable Section -->
+    <div id="timetable-section" class="container mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      <h2 class="text-2xl font-semibold text-center text-gray-800 mb-5">Yard Duty Schedule</h2>
+      <table class="min-w-full table-auto border-collapse border border-gray-300" id="teacher-table">
+          <thead>
+              <tr class="bg-[#2A8C55] text-white">
+                  <th class="px-4 py-2 border border-gray-300">Area</th>
+                  <th class="px-4 py-2 border border-gray-300">Monday</th>
+                  <th class="px-4 py-2 border border-gray-300">Tuesday</th>
+                  <th class="px-4 py-2 border border-gray-300">Wednesday</th>
+                  <th class="px-4 py-2 border border-gray-300">Thursday</th>
+                  <th class="px-4 py-2 border border-gray-300">Friday</th>
+                  <th class="px-4 py-2 border border-gray-300">Time (min)</th>
+              </tr>
+          </thead>
+          <tbody>
+            <!--Se generan dinamicamente-->
+          </tbody>
+      </table>
+    </div>
+    
+  </div>
+
+<!-- jQuery -->
+<script src="../../renderer.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="../../assigner.js"></script>
+
+</body>
+</html>
