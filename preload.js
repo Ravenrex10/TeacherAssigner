@@ -1,9 +1,9 @@
-const { contextBridge, ipcRenderer } = require('electron')
+const teachers = require('./src/models/teachersModel');
+const { contextBridge } = require('electron')
 
-contextBridge.exposeInMainWorld('versions', {
-  node: () => process.versions.node,
-  chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron,
-  ping: () => ipcRenderer.invoke('ping')
-  // we can also expose variables, not just functions
-})
+const getNames = () => {
+  return teachers.getNames();
+}
+contextBridge.exposeInMainWorld("api", {
+  getNames: getNames
+});
