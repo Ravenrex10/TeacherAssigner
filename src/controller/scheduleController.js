@@ -1,4 +1,11 @@
 let draggedCell = null;
+let weekDayDictionary = {
+    0: "Monday",
+    1: "Tuesday",
+    2: "Wednesday",
+    3: "Thursday",
+    4: "Friday"
+}
 
 // Function to set up drag-and-drop for the table cells
 const setUpDraggableCells = () => {
@@ -31,6 +38,9 @@ const setUpDraggableCells = () => {
 };
 
 const addNewRow = (area, teachers) => {
+    let assignments = window.assignmentApi.getAssignments();
+    let filteredAssignments = assignments.filter(assignment => assignment.area_id === area.id);
+
     const tableBody = $('#teacher-table tbody');
     const newRow = $('<tr>').addClass('bg-white hover:bg-gray-50');
 
@@ -44,21 +54,30 @@ const addNewRow = (area, teachers) => {
     for (let i = 0; i < 5; i++) { // 5 days
 
         const cell = document.createElement('td');
-                        cell.className = 'draggable border border-gray-300';
-                        cell.setAttribute('draggable', 'true');
+        cell.className = 'draggable border border-gray-300';
+        cell.setAttribute('draggable', 'true');
 
         const select = document.createElement('select');
 
         const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'None';
-            select.append(defaultOption);
+        defaultOption.value = '';
+        defaultOption.textContent = 'None';
+        select.append(defaultOption);
 
         // Add teacher options to the select element
         teachers.forEach(teacher => {
             const option = document.createElement('option');
-                            option.value = teacher.firstName;
-                            option.textContent = teacher.firstName;
+            option.value = teacher.firstName;
+            option.textContent = teacher.firstName;
+
+            // Check if the teacher has an assignment in filteredAssignments
+            const assignedTeacher = filteredAssignments.find(assignment => assignment.teacher_id === teacher.id && weekDayDictionary[i] === assignment.weekDay);
+
+            // If the teacher is in filteredAssignments, set the option as selected
+            if (assignedTeacher) {
+                option.selected = true;
+            }
+
             select.append(option);
         });
 
