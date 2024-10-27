@@ -4,6 +4,12 @@ const { contextBridge } = require('electron')
 const getNames = () => {
   return teachers.getNames();
 }
-contextBridge.exposeInMainWorld("api", {
-  getNames: getNames
+
+const addTeacher = (firstName, lastName) => {
+  teachers.addTeacher(firstName, lastName);
+}
+
+contextBridge.exposeInMainWorld("teacherApi", {
+  getNames: getNames,
+  addTeacher: addTeacher
 });

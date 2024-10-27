@@ -1,4 +1,2 @@
-const sqlite = require('better-sqlite3');
-const dbPath = path.join(__dirname, './teachers.db');
-const db = new sqlite(dbPath);
+const db = require('better-sqlite3')('./yardDuty.db');
 exports.db = db;

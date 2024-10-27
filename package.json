@@ -10,12 +10,17 @@
   "author": "ravenrex10",
   "license": "ISC",
   "devDependencies": {
+    "add": "^2.0.6",
     "electron": "^32.2.2",
     "electron-rebuild": "^3.2.9",
-    "tailwindcss": "^3.4.13"
+    "package": "^1.0.1",
+    "tailwindcss": "^3.4.13",
+    "the": "^1.0.2",
+    "to": "^0.2.9"
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",
+    "flowbite": "^2.5.2",
     "sqlite3": "^5.1.7"
   }
 }
