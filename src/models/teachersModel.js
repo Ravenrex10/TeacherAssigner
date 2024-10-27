@@ -13,3 +13,9 @@ exports.addTeacher = (firstName, lastName) => {
     let stmt = db.prepare(qry);
     stmt.run(firstName, lastName);
 }
+
+exports.deleteTeacher = (teacherId) => {
+    const qry = 'DELETE FROM teachers WHERE id = ?;';
+    let stmt = db.prepare(qry);
+    stmt.run(teacherId);
+}
