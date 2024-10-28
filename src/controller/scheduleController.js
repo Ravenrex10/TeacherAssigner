@@ -37,8 +37,8 @@ const setUpDraggableCells = () => {
     });
 };
 
-const addNewRow = (area, teachers) => {
-    let assignments = window.assignmentApi.getAssignments();
+const addNewRow = (area, teachers, assignments) => {
+    
     let filteredAssignments = assignments.filter(assignment => assignment.area_id === area.id);
 
     const tableBody = $('#teacher-table tbody');
@@ -97,16 +97,40 @@ const addNewRow = (area, teachers) => {
     setUpDraggableCells();
 };
 
-const populateScheduleTable = () => {
-    let areas = window.areaApi.getAreas();
-    let teachers = window.teacherApi.getNames();
+const calculateTotalTime = (teacher, areas, assignments) => {
+    let filteredAssignments = assignments.filter(assignment => assignment.teacher_id === teacher.id);
+    let totalTime = 0;
 
+    filteredAssignments.forEach(assignment => {
+        let area = areas.find(area => area.id === assignment.area_id);
+        if (area) {
+            totalTime += area.areaTime;
+        }
+    });
+
+    return totalTime;
+};
+
+const populateScheduleTable = (teachers, areas, assignments) => {
     areas.forEach(area => {
-        addNewRow(area, teachers)
+        addNewRow(area, teachers, assignments)
     });
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    let teachers = window.teacherApi.getNames();
+    let areas = window.areaApi.getAreas();
+    let assignments = window.assignmentApi.getAssignments();
+
     setUpDraggableCells();
-    populateScheduleTable();
+    populateScheduleTable(teachers, areas, assignments);
+    
+    teachers.forEach(teacher => {
+        let totalTime = calculateTotalTime(teacher, areas, assignments);
+        const teacherList = $('#teachers-times'); // Using jQuery to select the element
+        const listItem = $('<li>'); // Create the list item with jQuery
+        listItem.text(`${teacher.firstName} ${teacher.lastName}: ${totalTime}`); // Set the text with jQuery
+        teacherList.append(listItem); // Append the list item to the teacher list
+    });
+    
 })
