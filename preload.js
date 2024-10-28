@@ -23,6 +23,22 @@ const getAssignments = () => {
   return assignments.getAssignments();
 }
 
+const addArea = (areaName, areaTime) => {
+  areas.addArea(areaName, areaTime);
+}
+
+const deleteArea = (areaId) => {
+  areas.deleteArea(areaId);
+}
+
+const deleteAll = () => {
+  assignments.deleteAll();
+}
+
+const createAssignments = (assignmentList) => {
+  assignments.createAssignments(assignmentList);
+}
+
 contextBridge.exposeInMainWorld("teacherApi", {
   getNames: getNames,
   addTeacher: addTeacher,
@@ -30,9 +46,13 @@ contextBridge.exposeInMainWorld("teacherApi", {
 });
 
 contextBridge.exposeInMainWorld("areaApi", {
-  getAreas: getAreas
-})
+  getAreas: getAreas,
+  addArea : addArea,
+  deleteArea : deleteArea
+});
 
 contextBridge.exposeInMainWorld("assignmentApi", {
-  getAssignments: getAssignments
-})
+  getAssignments: getAssignments,
+  deleteAll : deleteAll,
+  createAssignments : createAssignments
+});

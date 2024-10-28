@@ -6,6 +6,7 @@ let weekDayDictionary = {
     3: "Thursday",
     4: "Friday"
 }
+const addRowForm = document.getElementById('add-row-form');
 
 // Function to set up drag-and-drop for the table cells
 const setUpDraggableCells = () => {
@@ -42,7 +43,9 @@ const addNewRow = (area, teachers, assignments) => {
     let filteredAssignments = assignments.filter(assignment => assignment.area_id === area.id);
 
     const tableBody = $('#teacher-table tbody');
-    const newRow = $('<tr>').addClass('bg-white hover:bg-gray-50');
+    const newRow = document.createElement('tr');
+    newRow.className = 'bg-white hover:bg-gray-50 text-center';
+
 
     // Create the first column with the area name
     const areaCell = document.createElement('td');
@@ -90,8 +93,23 @@ const addNewRow = (area, teachers, assignments) => {
                     timeCell.innerText = area.areaTime;
                     newRow.append(timeCell);
 
+    const deleteCell = document.createElement('td');
+    deleteCell.innerHTML = `
+        <td class="py-2 px-4 text-center" style="width: 5px;">
+            <button class="delete-button text-red-500 hover:text-red-700 font-semibold">X</button>
+        </td>
+    `;
+    newRow.append(deleteCell);
+    
+
     // Append the new row to the table
     tableBody.append(newRow);
+
+    // Add an event listener to the delete button
+    newRow.querySelector('.delete-button').addEventListener('click', () => {
+        window.areaApi.deleteArea(area.id); // Call a function to delete the teacher
+        newRow.remove(); // Remove the row from the table
+    });
 
     // Set up draggable for the newly added row
     setUpDraggableCells();
@@ -117,6 +135,18 @@ const populateScheduleTable = (teachers, areas, assignments) => {
     });
 }
 
+addRowForm.addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent the default form submission
+    
+    // Get values from the input fields
+    const areaName = document.getElementById('areaName').value;
+    const areaTime = document.getElementById('areaTime').value;
+
+    // Call the function from teachers.js
+    window.areaApi.addArea(areaName, areaTime);
+    location.reload();
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
     let teachers = window.teacherApi.getNames();
     let areas = window.areaApi.getAreas();
@@ -129,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let totalTime = calculateTotalTime(teacher, areas, assignments);
         const teacherList = $('#teachers-times'); // Using jQuery to select the element
         const listItem = $('<li>'); // Create the list item with jQuery
-        listItem.text(`${teacher.firstName} ${teacher.lastName}: ${totalTime}`); // Set the text with jQuery
+        listItem.text(`${teacher.firstName} ${teacher.lastName}: ${totalTime} minutes`); // Set the text with jQuery
         teacherList.append(listItem); // Append the list item to the teacher list
     });
     
