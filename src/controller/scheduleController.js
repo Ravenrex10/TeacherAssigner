@@ -1,3 +1,4 @@
+
 let draggedCell = null;
 let weekDayDictionary = {
     0: "Monday",
@@ -30,100 +31,165 @@ const setUpDraggableCells = () => {
             const draggedValue = draggedSelect.val();
             const targetValue = targetSelect.val();
 
+            // Swap the values in the UI
             draggedSelect.val(targetValue); // Set target value in dragged select
             targetSelect.val(draggedValue); // Set dragged value in target select
 
+            // Get data attributes for the dragged and target cells
+            const draggedData = {
+                teacher_id: draggedValue,
+                area_id: draggedSelect.data('areaId'),
+                weekDay: draggedSelect.data('weekDay'),
+                breakType: draggedSelect.data('breakType'),
+                breakHalf: draggedSelect.data('breakHalf')
+            };
+
+            const targetData = {
+                teacher_id: targetValue,
+                area_id: targetSelect.data('areaId'),
+                weekDay: targetSelect.data('weekDay'),
+                breakType: targetSelect.data('breakType'),
+                breakHalf: targetSelect.data('breakHalf')
+            };
+
+            // Call a function to update the database for both cells
+            assignmentApi.swapAssignments(draggedData, targetData);
+            
+
             draggedCell = null; // Reset dragged cell
+
+            location.reload();
         }
     });
 };
 
 const addNewRow = (area, teachers, assignments) => {
-    
     let filteredAssignments = assignments.filter(assignment => assignment.area_id === area.id);
-
     const tableBody = $('#teacher-table tbody');
-    const newRow = document.createElement('tr');
-    newRow.className = 'bg-white hover:bg-gray-50 text-center';
-
-
-    // Create the first column with the area name
-    const areaCell = document.createElement('td');
-    areaCell.className = 'border border-gray-300'; // Cell styling
-    areaCell.innerText = area.areaName;
-    newRow.append(areaCell);
-
-    // Create the remaining columns for teacher selections
-    for (let i = 0; i < 5; i++) { // 5 days
-
-        const cell = document.createElement('td');
-        cell.className = 'draggable border border-gray-300';
-        cell.setAttribute('draggable', 'true');
-
-        const select = document.createElement('select');
-
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'None';
-        select.append(defaultOption);
-
-        // Add teacher options to the select element
-        teachers.forEach(teacher => {
-            const option = document.createElement('option');
-            option.value = teacher.firstName;
-            option.textContent = teacher.firstName;
-
-            // Check if the teacher has an assignment in filteredAssignments
-            const assignedTeacher = filteredAssignments.find(assignment => assignment.teacher_id === teacher.id && weekDayDictionary[i] === assignment.weekDay);
-
-            // If the teacher is in filteredAssignments, set the option as selected
-            if (assignedTeacher) {
-                option.selected = true;
-            }
-
-            select.append(option);
-        });
-
-        cell.append(select);
-        newRow.append(cell);
-    }
-
-    const timeCell = document.createElement('td');
-                    timeCell.className = 'border border-gray-300';
-                    timeCell.innerText = area.areaTime;
-                    newRow.append(timeCell);
-
-    const deleteCell = document.createElement('td');
-    deleteCell.innerHTML = `
-        <td class="py-2 px-4 text-center" style="width: 5px;">
-            <button class="delete-button text-red-500 hover:text-red-700 font-semibold">X</button>
-        </td>
-    `;
-    newRow.append(deleteCell);
     
+    // Create 4 rows for each break type and half
+    const breakTypes = [
+        { type: 'recess', half: 1, label: '1st Recess' },
+        { type: 'recess', half: 2, label: '2nd Recess' },
+        { type: 'lunch', half: 1, label: '1st Lunch' },
+        { type: 'lunch', half: 2, label: '2nd Lunch' }
+    ];
+    
+    breakTypes.forEach((breakInfo, index) => {
+        const newRow = document.createElement('tr');
+        newRow.className = 'bg-white hover:bg-gray-50 text-center';
+        
+        // Create the first column with area name and break type
+        const areaCell = document.createElement('td');
+        areaCell.className = 'border border-gray-300';
+        // Only show area name in first row, otherwise show just the break type
+        areaCell.innerText = `${area.areaName} - ${breakInfo.label}`;
+        newRow.append(areaCell);
+        
+        // Create the remaining columns for teacher selections (5 days)
+        for (let i = 0; i < 5; i++) {
+            const cell = document.createElement('td');
+            cell.className = 'draggable border border-gray-300';
+            cell.setAttribute('draggable', 'true');
+            
+            const select = document.createElement('select');
+            select.className = 'p-1';
+            
+            // Add data attributes for break type and half
+            select.dataset.breakType = breakInfo.type;
+            select.dataset.breakHalf = breakInfo.half;
+            select.dataset.weekDay = weekDayDictionary[i];
+            select.dataset.areaId = area.id;
+            
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'None';
+            select.append(defaultOption);
+            
+            // Add teacher options to the select element
+            teachers.forEach(teacher => {
+                const option = document.createElement('option');
+                option.value = teacher.id;
+                option.textContent = teacher.firstName;
+                
+                // Check if the teacher is assigned for this specific break and day
+                const assignedTeacher = filteredAssignments.find(assignment => 
+                    assignment.teacher_id === teacher.id && 
+                    weekDayDictionary[i] === assignment.weekDay &&
+                    assignment.breakType === breakInfo.type &&
+                    assignment.breakHalf === breakInfo.half
+                );
+                
+                if (assignedTeacher) {
+                    option.selected = true;
+                }
+                
+                select.append(option);
+            });
+            
+            // Add change event listener to handle assignment updates
+            select.addEventListener('change', (event) => {
+                const teacherId = event.target.value;
+                const weekDay = event.target.dataset.weekDay;
+                const breakType = event.target.dataset.breakType;
+                const breakHalf = parseInt(event.target.dataset.breakHalf);
+                const areaId = event.target.dataset.areaId;
+                
+                // Update assignments logic here
+                window.assignmentApi.updateAssignment(teacherId, areaId, weekDay, breakType, breakHalf);
 
-    // Append the new row to the table
-    tableBody.append(newRow);
-
-    // Add an event listener to the delete button
-    newRow.querySelector('.delete-button').addEventListener('click', () => {
-        window.areaApi.deleteArea(area.id); // Call a function to delete the teacher
-        newRow.remove(); // Remove the row from the table
+                location.reload();
+            });
+            
+            cell.append(select);
+            newRow.append(cell);
+        }
+        
+        // Add time cell showing the duration for this break period
+        const timeCell = document.createElement('td');
+        timeCell.className = 'border border-gray-300';
+        timeCell.innerText = BREAK_TIMES[breakInfo.type][breakInfo.half] + ' min';
+        newRow.append(timeCell);
+        
+        // Add delete button only to the first row
+        const deleteCell = document.createElement('td');
+        if (index === 0) {
+            deleteCell.innerHTML = `
+                <td class="py-2 px-4 text-center" style="width: 5px;">
+                    <button class="delete-button text-red-500 hover:text-red-700 font-semibold">X</button>
+                </td>
+            `;
+            
+            // Add delete button event listener
+            deleteCell.querySelector('.delete-button').addEventListener('click', () => {
+                window.areaApi.deleteArea(area.id);
+                // Remove all 4 rows associated with this area
+                const rowsToRemove = 4;
+                let currentRow = newRow;
+                for (let i = 0; i < rowsToRemove; i++) {
+                    const rowToRemove = currentRow;
+                    currentRow = currentRow.nextSibling;
+                    rowToRemove.remove();
+                }
+            });
+        }
+        newRow.append(deleteCell);
+        
+        // Append the new row to the table
+        tableBody.append(newRow);
     });
-
-    // Set up draggable for the newly added row
+    
+    // Set up draggable for all newly added rows
     setUpDraggableCells();
 };
+
 
 const calculateTotalTime = (teacher, areas, assignments) => {
     let filteredAssignments = assignments.filter(assignment => assignment.teacher_id === teacher.id);
     let totalTime = 0;
 
     filteredAssignments.forEach(assignment => {
-        let area = areas.find(area => area.id === assignment.area_id);
-        if (area) {
-            totalTime += area.areaTime;
-        }
+        totalTime += BREAK_TIMES[assignment.breakType][assignment.breakHalf];
     });
 
     return totalTime;
@@ -140,10 +206,9 @@ addRowForm.addEventListener('submit', (event) => {
     
     // Get values from the input fields
     const areaName = document.getElementById('areaName').value;
-    const areaTime = document.getElementById('areaTime').value;
 
     // Call the function from teachers.js
-    window.areaApi.addArea(areaName, areaTime);
+    window.areaApi.addArea(areaName);
     location.reload();
 });
 

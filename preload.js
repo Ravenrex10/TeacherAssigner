@@ -23,8 +23,8 @@ const getAssignments = () => {
   return assignments.getAssignments();
 }
 
-const addArea = (areaName, areaTime) => {
-  areas.addArea(areaName, areaTime);
+const addArea = (areaName) => {
+  areas.addArea(areaName);
 }
 
 const deleteArea = (areaId) => {
@@ -37,6 +37,14 @@ const deleteAll = () => {
 
 const createAssignments = (assignmentList) => {
   assignments.createAssignments(assignmentList);
+}
+
+const swapAssignments = (assignmentA, assignmentB) => {
+  assignments.swapAssignments(assignmentA, assignmentB);
+}
+
+const updateAssignment = (teacherId, areaId, weekDay, breakType, breakHalf) => {
+  assignments.updateAssignment(teacherId, areaId, weekDay, breakType, breakHalf);
 }
 
 contextBridge.exposeInMainWorld("teacherApi", {
@@ -54,5 +62,7 @@ contextBridge.exposeInMainWorld("areaApi", {
 contextBridge.exposeInMainWorld("assignmentApi", {
   getAssignments: getAssignments,
   deleteAll : deleteAll,
-  createAssignments : createAssignments
+  createAssignments : createAssignments,
+  swapAssignments : swapAssignments,
+  updateAssignment : updateAssignment
 });

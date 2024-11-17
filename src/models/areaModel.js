@@ -8,10 +8,10 @@ exports.getAreas = () => {
     return res;
 }
 
-exports.addArea = (areaName, areaTime) => {
-    const qry = 'INSERT INTO areas (areaName, areaTime) VALUES (?, ?)';
+exports.addArea = (areaName) => {
+    const qry = 'INSERT INTO areas (areaName) VALUES (?)';
     let stmt = db.prepare(qry);
-    stmt.run(areaName, areaTime);
+    stmt.run(areaName);
 }
 
 exports.deleteArea = (areaId) => {
